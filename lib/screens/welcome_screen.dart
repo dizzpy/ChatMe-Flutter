@@ -1,7 +1,7 @@
 import 'package:firebase_chatapp/componets/rounded_button.dart';
+import 'package:flutter/material.dart';
 import 'package:firebase_chatapp/screens/login_screen.dart';
 import 'package:firebase_chatapp/screens/registration_screen.dart';
-import 'package:flutter/material.dart';
 
 class WelcomeScreen extends StatefulWidget {
   static const String id = 'welcome_screen';

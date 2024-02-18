@@ -1,5 +1,7 @@
+import 'package:firebase_chatapp/screens/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_chatapp/constants.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class ChatScreen extends StatefulWidget {
   static const String id = 'chat_page';
@@ -8,6 +10,33 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
+  final _auth = FirebaseAuth.instance;
+  late User loggedInUser;
+
+  @override
+  void initState() {
+    super.initState();
+    checkAuthentication();
+  }
+
+  void checkAuthentication() async {
+    try {
+      final user = await _auth.currentUser;
+      if (user == null) {
+        // User not authenticated, navigate to login screen
+        Navigator.pushReplacementNamed(context, LoginScreen.id);
+      } else {
+        // User authenticated, set the current user
+        setState(() {
+          loggedInUser = user;
+        });
+        print(loggedInUser.email);
+      }
+    } catch (err) {
+      print(err);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -15,10 +44,11 @@ class _ChatScreenState extends State<ChatScreen> {
         leading: null,
         actions: <Widget>[
           IconButton(
-              icon: Icon(Icons.close),
-              onPressed: () {
-                //Implement logout functionality
-              }),
+            icon: Icon(Icons.close),
+            onPressed: () {
+              // Implement logout functionality
+            },
+          ),
         ],
         title: Text('⚡️Chat'),
         backgroundColor: Colors.lightBlueAccent,
@@ -36,14 +66,14 @@ class _ChatScreenState extends State<ChatScreen> {
                   Expanded(
                     child: TextField(
                       onChanged: (value) {
-                        //Do something with the user input.
+                        // Do something with the user input.
                       },
                       decoration: kMessageTextFieldDecoration,
                     ),
                   ),
                   ElevatedButton(
                     onPressed: () {
-                      //Implement send functionality.
+                      // Implement send functionality.
                     },
                     child: Text(
                       'Send',

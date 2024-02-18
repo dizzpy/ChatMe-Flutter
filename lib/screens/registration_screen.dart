@@ -1,14 +1,18 @@
+import 'package:flutter/material.dart';
 import 'package:firebase_chatapp/componets/rounded_button.dart';
 import 'package:firebase_chatapp/constants.dart';
-import 'package:flutter/material.dart';
+import 'package:firebase_chatapp/screens/chat_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class RegistrationScreen extends StatefulWidget {
-  static const String id = 'registation_page';
+  static const String id = 'registration_page';
+
   @override
   _RegistrationScreenState createState() => _RegistrationScreenState();
 }
 
 class _RegistrationScreenState extends State<RegistrationScreen> {
+  final _auth = FirebaseAuth.instance;
   String email = '';
   String password = '';
 
@@ -39,7 +43,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 email = value;
               },
               decoration: kTextInputFieldDecoration.copyWith(
-                  hintText: 'Enter Your Email'),
+                hintText: 'Enter Your Email',
+              ),
             ),
             SizedBox(
               height: 8.0,
@@ -52,7 +57,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 password = value;
               },
               decoration: kTextInputFieldDecoration.copyWith(
-                  hintText: 'Enter Your Password'),
+                hintText: 'Enter Your Password',
+              ),
             ),
             SizedBox(
               height: 24.0,
@@ -60,9 +66,31 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
             RoundedButton(
               color: Colors.blueAccent,
               title: 'Register',
-              onPressed: () {
-                print(email);
-                print(password);
+              onPressed: () async {
+                try {
+                  final newUser = await _auth.createUserWithEmailAndPassword(
+                    email: email,
+                    password: password,
+                  );
+                  if (newUser != null) {
+                    // Instead of pushReplacementNamed, use pushNamed
+                    Navigator.pushNamed(context, ChatScreen.id);
+                  }
+                } catch (err) {
+                  print(err);
+                  String errorMessage = 'Registration failed.';
+
+                  if (err is FirebaseAuthException) {
+                    errorMessage = err.message ?? 'An error occurred.';
+                  }
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(errorMessage),
+                      duration: Duration(seconds: 3),
+                    ),
+                  );
+                }
               },
             ),
           ],
