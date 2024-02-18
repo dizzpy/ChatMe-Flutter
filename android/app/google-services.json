@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "691352858208",
+    "project_id": "flashchatapp-f3295",
+    "storage_bucket": "flashchatapp-f3295.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:691352858208:android:f7e1d6f006ed46cb5c9d05",
+        "android_client_info": {
+          "package_name": "com.dizzpy.flashchatapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCqruaxVFeLXQDPg3s6R0txxIuQdSKH42Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
