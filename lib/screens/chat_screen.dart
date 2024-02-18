@@ -6,11 +6,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ChatScreen extends StatefulWidget {
   static const String id = 'chat_page';
+
   @override
   _ChatScreenState createState() => _ChatScreenState();
 }
 
 class _ChatScreenState extends State<ChatScreen> {
+  final messageController = TextEditingController();
   final _auth = FirebaseAuth.instance;
   final _firestore = FirebaseFirestore.instance;
   late User loggedInUser;
@@ -59,9 +61,9 @@ class _ChatScreenState extends State<ChatScreen> {
           IconButton(
             icon: Icon(Icons.close),
             onPressed: () {
-              messagesStream();
-              // _auth.signOut();
-              // Navigator.pop(context);
+              // messagesStream();
+              _auth.signOut();
+              Navigator.pop(context);
             },
           ),
         ],
@@ -83,19 +85,27 @@ class _ChatScreenState extends State<ChatScreen> {
                     ),
                   );
                 }
-                final messages = snapshot.data!.docs;
-                List<Text> messageWidgets = [];
+                final messages = snapshot.data!.docs; // Remove reversed
+                List<MessageBubble> messageBubbles = [];
                 for (var message in messages) {
                   final messageText = message['text'];
                   final messageSender = message['sender'];
 
-                  final messageWidget =
-                      Text('$messageText from $messageSender');
-                  messageWidgets.add(messageWidget);
+                  final messageBubble = MessageBubble(
+                    sender: messageSender,
+                    text: messageText,
+                    isMe: loggedInUser.email == messageSender,
+                  );
+                  messageBubbles.add(messageBubble);
                 }
                 return Expanded(
                   child: ListView(
-                    children: messageWidgets,
+                    reverse: true, // Add this line
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 10.0,
+                      vertical: 20.0,
+                    ),
+                    children: messageBubbles.reversed.toList(), // Reverse the list
                   ),
                 );
               },
@@ -107,6 +117,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 children: <Widget>[
                   Expanded(
                     child: TextField(
+                      controller: messageController,
                       onChanged: (value) {
                         messageText = value;
                       },
@@ -115,6 +126,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   ),
                   ElevatedButton(
                     onPressed: () {
+                      messageController.clear();
                       _firestore.collection('messages').add({
                         'text': messageText,
                         'sender': loggedInUser.email,
@@ -130,6 +142,57 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class MessageBubble extends StatelessWidget {
+  MessageBubble({required this.sender, required this.text, required this.isMe});
+  final String sender;
+  final String text;
+  final bool isMe;
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.all(10.0),
+      child: Column(
+        crossAxisAlignment:
+            isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+        children: <Widget>[
+          Text(
+            sender,
+            style: TextStyle(
+              fontSize: 12.0,
+              color: Colors.black54,
+            ),
+          ),
+          Material(
+            borderRadius: isMe
+                ? BorderRadius.only(
+                    topLeft: Radius.circular(30.0),
+                    bottomLeft: Radius.circular(30.0),
+                    bottomRight: Radius.circular(30.0),
+                  )
+                : BorderRadius.only(
+                    topRight: Radius.circular(30.0),
+                    bottomLeft: Radius.circular(30.0),
+                    bottomRight: Radius.circular(30.0),
+                  ),
+            elevation: 5.0,
+            color: isMe ? Colors.lightBlueAccent : Colors.white,
+            child: Padding(
+              padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 20.0),
+              child: Text(
+                '$text',
+                style: TextStyle(
+                  color: isMe ? Colors.white : Colors.black54,
+                  fontSize: 15.0,
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
